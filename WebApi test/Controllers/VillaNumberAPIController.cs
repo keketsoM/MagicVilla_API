@@ -154,7 +154,7 @@ namespace WebApi_test.Controllers
 
         }
 
-        [HttpDelete("id:int", Name = "DeleteVillaNumber")]
+        [HttpDelete("{id:int}", Name = "DeleteVillaNumber")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -190,7 +190,7 @@ namespace WebApi_test.Controllers
 
         }
 
-        [HttpPut("id:int", Name = "UpdateVillaNumber")]
+        [HttpPut("{id:int}", Name = "UpdateVillaNumber")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -202,15 +202,15 @@ namespace WebApi_test.Controllers
                 {
                     return BadRequest();
                 }
-                var villaId = await _villaRepository.GetAsync(u => u.Id == UpdateDto.VillaId);
-                if (villaId == null)
+
+                if (await _villaRepository.GetAsync(u => u.Id == UpdateDto.VillaId) == null)
                 {
                     ModelState.AddModelError("customError", "the id those not exist");
 
                     return BadRequest(ModelState);
                 }
-                var villaNumber = await _villaNumberRepository.GetAsync(u => u.VillaNo == id);
-                //var villa = _mapper.Map<VillaNumber>(villaNumber);
+
+                var villaNumber = _mapper.Map<VillaNumber>(UpdateDto);
                 //var villa = new Villa
                 //{
 
@@ -240,7 +240,7 @@ namespace WebApi_test.Controllers
 
         }
 
-        [HttpPatch("id:int", Name = "UpdatePartialVillaNumber")]
+        [HttpPatch("{id:int}", Name = "UpdatePartialVillaNumber")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

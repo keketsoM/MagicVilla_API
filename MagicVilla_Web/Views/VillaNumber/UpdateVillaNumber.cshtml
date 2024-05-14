@@ -1,6 +1,6 @@
 ﻿@model VillaNumberDtoUpdate
 
-<form asp-action="UpdateVilla" method="post">
+<form asp-action="UpdateVillaNumber">
     <br />
     <div class="container border p-3">
         <h1 class="text-primary">Update Villa</h1>
@@ -24,10 +24,10 @@
             </div>
            
             <div class="col-5 offset-2">
-                <a asp-action="IndexVilla" class="btn btn-primary form-control">Back to list</a>
+                <a asp-action="IndexVillaNumber" class="btn btn-primary form-control">Back to list</a>
             </div>
             <div class="col-5">
-                <input asp-action="UpdateVilla" type="submit" value="Update" class="btn btn-success form-control" />
+                <button asp-controller="VillaNumber" asp-action="UpdateVillaNumber" type="submit" class="btn btn-success form-control">Update</button>
             </div>
         </div>
     </div>
