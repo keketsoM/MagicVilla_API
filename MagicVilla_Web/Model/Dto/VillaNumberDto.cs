@@ -7,10 +7,8 @@ namespace MagicVilla_Web.Model.Dto
     {
         [Required]
         public int VillaNo { get; set; }
-        [Required]
-        public int VillaId { get; set; }
         public string SpecialDetails { get; set; }
-
+        [Required]
         public int VillaID { get; set; }
         [ForeignKey("VillaID")]
         public VillaDto Villa { get; set; }

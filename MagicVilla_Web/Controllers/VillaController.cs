@@ -44,13 +44,14 @@ namespace MagicVilla_Web.Controllers
                 var response = await _villaService.CreateAsync<APIResponse>(villaDtoCreate);
                 if (response != null && response.IsSuccess)
                 {
+                    TempData["success"] = "Villa created successfully";
                     return RedirectToAction("IndexVilla");
                 }
 
             }
 
 
-
+            TempData["error"] = "Error encounted";
             return View(villaDtoCreate);
         }
         public async Task<IActionResult> UpdateVilla(int id)
@@ -64,6 +65,7 @@ namespace MagicVilla_Web.Controllers
 
                 return View(_mapper.Map<VillaDtoUpdate>(villa));
             }
+            TempData["error"] = "Error encounted";
             return NotFound();
         }
         [HttpPost]
@@ -75,13 +77,14 @@ namespace MagicVilla_Web.Controllers
                 var response = await _villaService.UpdateAsync<APIResponse>(villaDtoUpdate);
                 if (response != null && response.IsSuccess)
                 {
+                    TempData["success"] = "Villa updated successfully";
                     return RedirectToAction("IndexVilla");
                 }
 
             }
 
 
-
+            TempData["error"] = "Error encounted";
             return View(villaDtoUpdate);
         }
         [HttpGet]
@@ -96,6 +99,7 @@ namespace MagicVilla_Web.Controllers
 
                 return View(villa);
             }
+            TempData["error"] = "Error encounted" + response.ErrorMessages;
             return NotFound();
         }
         [HttpPost, ActionName("DeleteVilla")]
@@ -106,8 +110,10 @@ namespace MagicVilla_Web.Controllers
             var response = await _villaService.DeleteAsync<APIResponse>(villaDtoDelete.Id);
             if (response != null && response.IsSuccess)
             {
+                TempData["success"] = "Villa deleted successfully";
                 return RedirectToAction("IndexVilla");
             }
+            TempData["error"] = "Error encounted";
             return View(villaDtoDelete);
         }
     }

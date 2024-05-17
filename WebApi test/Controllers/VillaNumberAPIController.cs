@@ -112,14 +112,14 @@ namespace WebApi_test.Controllers
                 //}
                 if (await _villaNumberRepository.GetAsync(u => u.VillaNo == createDto.VillaNo) != null)
                 {
-                    ModelState.AddModelError("name", "the value already exist");
+                    ModelState.AddModelError("ErrorMessages", "the value already exist");
 
                     return BadRequest(ModelState);
                 }
                 var villa = await _villaRepository.GetAsync(u => u.Id == createDto.VillaId);
                 if (villa == null)
                 {
-                    ModelState.AddModelError("name", "the id those not exist");
+                    ModelState.AddModelError("ErrorMessages", "the id those not exist");
 
                     return BadRequest(ModelState);
                 }
@@ -205,7 +205,7 @@ namespace WebApi_test.Controllers
 
                 if (await _villaRepository.GetAsync(u => u.Id == UpdateDto.VillaId) == null)
                 {
-                    ModelState.AddModelError("customError", "the id those not exist");
+                    ModelState.AddModelError("ErrorMessages", "the id those not exist");
 
                     return BadRequest(ModelState);
                 }

@@ -6,7 +6,7 @@
         <h1 class="text-primary">Create Villa</h1>
         <hr />
         <div class="row">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div asp-validation-summary="All" class="text-danger"></div>
   
             <div class="col-2">
                 <label asp-for="VillaNumber.VillaNo" class="form-label pt-2" style="font-size:20px;"></label>
@@ -16,13 +16,13 @@
                 <span asp-validation-for="VillaNumber.VillaNo" class="text-danger"></span>
             </div>
             <div class="col-2">
-                <label asp-for="VillaNumber.VillaId" class="form-label pt-2" style="font-size:20px;"></label>
+                <label asp-for="VillaNumber.VillaID" class="form-label pt-2" style="font-size:20px;"></label>
             </div>
             <div class="col-10 pb-3">
-                <select asp-for="VillaNumber.VillaId" class="form-select" asp-items="@Model.villaList">
+                <select asp-for="VillaNumber.VillaID" class="form-select" asp-items="@Model.villaList">
                     <option disabled selected>--select Villa--</option>
                 </select>
-                <span asp-validation-for="VillaNumber.VillaId" class="text-danger"></span>
+                <span asp-validation-for="VillaNumber.VillaID" class="text-danger"></span>
             </div>
             <div class="col-2">
                 <label asp-for="VillaNumber.SpecialDetails" class="form-label pt-2" style="font-size:20px;"></label>

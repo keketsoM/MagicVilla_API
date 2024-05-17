@@ -109,7 +109,7 @@ namespace WebApi_test.Controllers
                 //}
                 if (await _villaRepository.GetAsync(u => u.Name.ToLower() == createDto.Name.ToLower()) != null)
                 {
-                    ModelState.AddModelError("name", "the value already exist");
+                    ModelState.AddModelError("ErrorMessages", "the value already exist");
 
                     return BadRequest(ModelState);
                 }
