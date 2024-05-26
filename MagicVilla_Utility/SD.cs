@@ -2,12 +2,13 @@
 {
     public static class SD
     {
-        public  enum ApiType
+        public enum ApiType
         {
-            GET, 
-            POST, 
-            PUT, 
-            DELETE  
+            GET,
+            POST,
+            PUT,
+            DELETE
         }
+        public static string SessionToken = "JWTToken";
     }
 }
