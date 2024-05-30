@@ -1,5 +1,7 @@
+using Asp.Versioning;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -17,6 +19,18 @@ builder.Services.AddDbContext<ApplicationDbcontext>(options =>
 });
 builder.Services.AddAutoMapper(typeof(MappingConfig));
 builder.Services.AddControllers().AddNewtonsoftJson();
+builder.Services.AddApiVersioning
+(options =>
+{
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.DefaultApiVersion = new ApiVersion(1, 0);
+    options.ReportApiVersions = true;
+}).AddApiExplorer(option =>
+{
+    option.GroupNameFormat = "'v'VVV";
+    option.SubstituteApiVersionInUrl = true;
+});
+
 builder.Services.AddScoped<IVillaRepository, VillaRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IVillaNumberRepository, VillaNumberRepository>();
@@ -69,6 +83,40 @@ builder.Services.AddSwaggerGen(options =>
             new List<string>()
         }
     });
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "WebApi_test",
+        Version = "v1.0",
+        Description = "Api to manage Villa",
+        Contact = new OpenApiContact
+        {
+            Name = "keke",
+            Email = "keketsokeke03@gmail.com",
+        },
+        TermsOfService = new Uri("https://www.example.com"),
+        License = new OpenApiLicense
+        {
+            Name = "Example License",
+            Url = new Uri("https://www.example.com/license"),
+        }
+    });
+    options.SwaggerDoc("v2", new OpenApiInfo
+    {
+        Title = "WebApi_test",
+        Version = "v2.0",
+        Description = "Api to manage Villa",
+        Contact = new OpenApiContact
+        {
+            Name = "keke",
+            Email = "keketsokeke03@gmail.com",
+        },
+        TermsOfService = new Uri("https://www.example.com"),
+        License = new OpenApiLicense
+        {
+            Name = "Example License",
+            Url = new Uri("https://www.example.com/license"),
+        }
+    });
 });
 var app = builder.Build();
 
@@ -76,7 +124,11 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "WebApi_test v1");
+        options.SwaggerEndpoint("/swagger/v2/swagger.json", "WebApi_test v2");
+    });
 }
 
 app.UseHttpsRedirection();

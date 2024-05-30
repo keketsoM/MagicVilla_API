@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using Asp.Versioning;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
@@ -11,10 +12,11 @@ using WebApi_test.Model;
 using WebApi_test.Model.Dto;
 using WebApi_test.Repository.IRepository;
 
-namespace WebApi_test.Controllers
+namespace WebApi_test.Controllers.v1
 {
-    [Route("api/VillaAPI")]
+    [Route("api/v{version:apiVersion}/VillaAPI")]
     [ApiController]
+
     public class VillaAPIController : ControllerBase
     {
         protected APIResponse _response;
@@ -22,18 +24,19 @@ namespace WebApi_test.Controllers
         private readonly IMapper _mapper;
         public VillaAPIController(IVillaRepository villaRepository, IMapper mapper)
         {
-            this._response = new();
+            _response = new();
             _villaRepository = villaRepository;
             _mapper = mapper;
 
         }
 
         [HttpGet]
-        [Authorize]
+
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<APIResponse>> GetVillas()
         {
@@ -159,7 +162,7 @@ namespace WebApi_test.Controllers
         }
 
         [HttpDelete("{id:int}", Name = "DeleteVilla")]
-        [Authorize(Roles = "CUSTOM")]
+        [Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

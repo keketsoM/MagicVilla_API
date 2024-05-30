@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using Asp.Versioning;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -12,10 +13,12 @@ using WebApi_test.Model;
 using WebApi_test.Model.Dto;
 using WebApi_test.Repository.IRepository;
 
-namespace WebApi_test.Controllers
+namespace WebApi_test.Controllers.v1
 {
-    [Route("api/VillaNumberAPI")]
+    [Route("api/v{version:apiVersion}/VillaNumberAPI")]
     [ApiController]
+    [ApiVersion("1.0")]
+
     public class VillaNumberAPIController : ControllerBase
     {
         protected APIResponse _response;
@@ -24,16 +27,22 @@ namespace WebApi_test.Controllers
         private readonly IVillaRepository _villaRepository;
         public VillaNumberAPIController(IVillaNumberRepository villaNumberRepository, IMapper mapper, IVillaRepository villaRepository)
         {
-            this._response = new();
+            _response = new();
             _villaNumberRepository = villaNumberRepository;
             _mapper = mapper;
             _villaRepository = villaRepository;
 
         }
+        [HttpGet("GetString")]
+        public IEnumerable<string> Get()
+        {
+
+            return new string[] { "string1", "string2" };
+        }
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [Authorize]
+
         public async Task<ActionResult<APIResponse>> GetVillas()
         {
             try

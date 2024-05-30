@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
+﻿using Asp.Versioning;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Xml.Xsl;
@@ -8,8 +9,10 @@ using WebApi_test.Repository.IRepository;
 
 namespace WebApi_test.Controllers
 {
-    [Route("api/UsersAuth")]
+    [Route("api/v{version:apiVersion}/UsersAuth")]
     [ApiController]
+    [ApiVersionNeutral]
+
     public class UsersController : Controller
     {
         private readonly IUserRepository _userRepository;
