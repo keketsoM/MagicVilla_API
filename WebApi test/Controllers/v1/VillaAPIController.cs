@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
+using System.Text.Json;
 using WebApi_test.Data;
 using WebApi_test.Model;
 using WebApi_test.Model.Dto;
@@ -31,24 +32,42 @@ namespace WebApi_test.Controllers.v1
         }
 
         [HttpGet]
-
+        [ResponseCache(CacheProfileName = "CachProfile")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> GetVillas()
+        public async Task<ActionResult<APIResponse>> GetAllVillas([FromQuery(Name = "Occupancy")] int? occupancy,
+            [FromQuery(Name = "Search")] string? search, int pageSize = 0, int pageNumber = 1)
         {
             try
             {
+                List<Villa> villasList;
+                if (occupancy > 0)
+                {
+                    villasList = await _villaRepository.AllAsync(u => u.Occupancy == occupancy, pageSize: pageSize, pageNumber: pageNumber);
+                }
+                else
+                {
+                    villasList = await _villaRepository.AllAsync(pageSize: pageSize, pageNumber: pageNumber);
+                }
+                if (search != null)
+                {
+                    villasList = villasList.Where(u => u.Name.ToLower().Contains(search.ToLower())).ToList();
+                }
+                Pagination pageination = new()
+                {
+                    PageSize = pageSize,
+                    PageNumber = pageNumber,
 
-                var villasList = await _villaRepository.AllAsync();
+                };
+                Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(pageination));
                 _response.Result = _mapper.Map<List<VillaDto>>(villasList);
                 _response.StatusCode = HttpStatusCode.OK;
                 _response.IsSuccess = true;
                 return Ok(_response);
-
             }
             catch (Exception ex)
             {
@@ -60,7 +79,8 @@ namespace WebApi_test.Controllers.v1
         }
 
         [HttpGet("{id:int}", Name = "Getvilla")]
-        [Authorize(Roles = "admin")]
+        // [Authorize(Roles = "admin")]
+        // [ResponseCache(Location =ResponseCacheLocation.Any,NoStore =true)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -75,12 +95,14 @@ namespace WebApi_test.Controllers.v1
                 if (id == 0)
                 {
                     _response.StatusCode = HttpStatusCode.BadRequest;
+                    _response.IsSuccess = false;
                     return _response;
                 }
                 var villas = await _villaRepository.GetAsync(x => x.Id == id);
                 if (villas == null)
                 {
                     _response.StatusCode = HttpStatusCode.NotFound;
+                    _response.IsSuccess = false;
                     return _response;
 
                 }
@@ -115,6 +137,7 @@ namespace WebApi_test.Controllers.v1
                 if (!ModelState.IsValid)
                 {
                     _response.StatusCode = HttpStatusCode.BadRequest;
+                    _response.IsSuccess = false;
                     return _response;
 
                 }
@@ -175,12 +198,14 @@ namespace WebApi_test.Controllers.v1
             {
                 if (id == 0)
                 {
+                    _response.IsSuccess = false;
                     return BadRequest();
                 }
 
                 var villa = await _villaRepository.GetAsync(u => u.Id == id);
                 if (villa == null)
                 {
+                    _response.IsSuccess = false;
                     NotFound();
                 }
                 await _villaRepository.RemoveAsync(villa);
@@ -212,6 +237,7 @@ namespace WebApi_test.Controllers.v1
             {
                 if (id == 0 || id != UpdateDto.Id)
                 {
+                    _response.IsSuccess = false;
                     return BadRequest();
                 }
 
@@ -255,6 +281,7 @@ namespace WebApi_test.Controllers.v1
         {
             if (id == 0 || patch == null)
             {
+                _response.IsSuccess = false;
                 return BadRequest();
             }
 
@@ -262,6 +289,7 @@ namespace WebApi_test.Controllers.v1
 
             if (villa == null)
             {
+                _response.IsSuccess = false;
                 return BadRequest();
             }
             var villaDtoUpdate = _mapper.Map<VillaDtoUpdate>(villa);
@@ -294,6 +322,7 @@ namespace WebApi_test.Controllers.v1
 
             if (ModelState.IsValid)
             {
+                _response.IsSuccess = false;
                 return BadRequest();
             }
             await _villaRepository.UpdateAsync(villa);

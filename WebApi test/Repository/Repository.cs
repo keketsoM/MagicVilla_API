@@ -17,7 +17,7 @@ namespace WebApi_test.Repository
             this.dbSet = _dbcontext.Set<T>();
         }
 
-        public async Task<List<T>> AllAsync(Expression<Func<T, bool>>? filter = null, string? includeProperties = null)
+        public async Task<List<T>> AllAsync(Expression<Func<T, bool>>? filter = null, string? includeProperties = null, int pageSize = 0, int pageNumber = 1)
         {
             IQueryable<T> query = dbSet;
             if (filter != null)
@@ -32,7 +32,15 @@ namespace WebApi_test.Repository
                     query = query.Include(property);
                 }
             }
-
+            if (pageSize > 0)
+            {
+                if (pageSize > 100)
+                {
+                    pageSize = 100;
+                }
+                // skip (1-1 * 3 = 0) take 3 records
+                query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
+            }
             return await query.ToListAsync();
         }
 

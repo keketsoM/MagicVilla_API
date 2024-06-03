@@ -42,6 +42,7 @@ namespace WebApi_test.Controllers.v1
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ResponseCache(CacheProfileName = "CachProfile")]
 
         public async Task<ActionResult<APIResponse>> GetVillas()
         {

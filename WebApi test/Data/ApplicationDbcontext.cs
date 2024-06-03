@@ -1,9 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using WebApi_test.Model;
 
 namespace WebApi_test.Data
 {
-    public class ApplicationDbcontext : DbContext
+    public class ApplicationDbcontext : IdentityDbContext
     {
 
         public ApplicationDbcontext(DbContextOptions<ApplicationDbcontext> options) : base(options)

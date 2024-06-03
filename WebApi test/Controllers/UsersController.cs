@@ -51,7 +51,7 @@ namespace WebApi_test.Controllers
                 _response.ErrorMessages.Add("Username already exists");
                 return BadRequest(_response);
             }
-            var user = _userRepository.Register(model);
+            var user = await _userRepository.Register(model);
             if (user == null)
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;

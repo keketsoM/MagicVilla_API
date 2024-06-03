@@ -1,6 +1,9 @@
 using Asp.Versioning;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -17,8 +20,16 @@ builder.Services.AddDbContext<ApplicationDbcontext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConection"));
 });
+builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbcontext>();
+builder.Services.AddResponseCaching();
 builder.Services.AddAutoMapper(typeof(MappingConfig));
-builder.Services.AddControllers().AddNewtonsoftJson();
+builder.Services.AddControllers(options =>
+{
+    options.CacheProfiles.Add("CachProfile", new CacheProfile
+    {
+        Duration = 120
+    });
+}).AddNewtonsoftJson();
 builder.Services.AddApiVersioning
 (options =>
 {
