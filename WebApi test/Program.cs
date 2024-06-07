@@ -3,13 +3,13 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
+
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using WebApi_test;
 using WebApi_test.Data;
+using WebApi_test.Model;
 using WebApi_test.Repository;
 using WebApi_test.Repository.IRepository;
 
@@ -20,8 +20,11 @@ builder.Services.AddDbContext<ApplicationDbcontext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConection"));
 });
-builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbcontext>();
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbcontext>();
 builder.Services.AddResponseCaching();
+builder.Services.AddScoped<IVillaRepository, VillaRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IVillaNumberRepository, VillaNumberRepository>();
 builder.Services.AddAutoMapper(typeof(MappingConfig));
 builder.Services.AddControllers(options =>
 {
@@ -42,9 +45,6 @@ builder.Services.AddApiVersioning
     option.SubstituteApiVersionInUrl = true;
 });
 
-builder.Services.AddScoped<IVillaRepository, VillaRepository>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IVillaNumberRepository, VillaNumberRepository>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -63,7 +63,7 @@ builder.Services.AddAuthentication(x =>
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Key)),
             ValidateAudience = false,
-            ValidateIssuer = false,
+            ValidateIssuer = false
         };
     });
 builder.Services.AddSwaggerGen(options =>

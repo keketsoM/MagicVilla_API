@@ -15,6 +15,7 @@ namespace WebApi_test
             CreateMap<VillaNumber, VillaNumberDto>().ReverseMap();
             CreateMap<VillaNumber, VillaNumberDtoCreate>().ReverseMap();
             CreateMap<VillaNumber, VillaNumberDtoUpdate>().ReverseMap();
+            CreateMap<ApplicationUser, UserDto>().ReverseMap();
         }
     }
 }

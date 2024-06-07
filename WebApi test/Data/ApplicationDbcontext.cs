@@ -11,6 +11,7 @@ namespace WebApi_test.Data
         {
 
         }
+        public DbSet<ApplicationUser> applicationUsers { get; set; }
         public DbSet<Villa> villas { get; set; }
         public DbSet<VillaNumber> villaNumbers { get; set; }
         public DbSet<LocalUser> localUsers { get; set; }

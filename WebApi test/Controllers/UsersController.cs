@@ -59,7 +59,6 @@ namespace WebApi_test.Controllers
                 _response.ErrorMessages.Add("Error while Registering");
                 return BadRequest(_response);
             }
-
             _response.StatusCode = HttpStatusCode.OK;
             _response.IsSuccess = true;
 
