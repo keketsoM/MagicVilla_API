@@ -137,8 +137,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(options =>
     {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "WebApi_test v1");
         options.SwaggerEndpoint("/swagger/v2/swagger.json", "WebApi_test v2");
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "WebApi_test v1");
     });
 }
 

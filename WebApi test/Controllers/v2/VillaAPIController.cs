@@ -13,11 +13,12 @@ using WebApi_test.Model;
 using WebApi_test.Model.Dto;
 using WebApi_test.Repository.IRepository;
 
-namespace WebApi_test.Controllers.v1
+namespace WebApi_test.Controllers.v2
 {
     [Route("api/v{version:apiVersion}/VillaAPI")]
     [ApiController]
-    [ApiVersion("1.0")]
+    [ApiVersion("2.0")]
+
     public class VillaAPIController : ControllerBase
     {
         protected APIResponse _response;

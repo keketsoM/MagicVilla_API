@@ -4,7 +4,9 @@ using MagicVilla_Web.Model.Dto;
 using MagicVilla_Web.Services.IServices;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
@@ -17,8 +19,10 @@ namespace MagicVilla_Web.Controllers
     {
         private readonly IAuthService _authService;
         private readonly APIResponse _apiResponse;
+        //private readonly RoleManager<IdentityRole> _roleManager;
         public AuthController(IAuthService authService)
         {
+          //  _roleManager = roleManager;
             _authService = authService;
         }
         [HttpGet]
@@ -57,17 +61,30 @@ namespace MagicVilla_Web.Controllers
         [HttpGet]
         public IActionResult Register()
         {
-
+            var role = new List<SelectListItem> {
+             new SelectListItem{ Value = SD.Customer, Text = SD.Customer},
+             new SelectListItem{ Value = SD.Admin, Text = SD.Admin},
+            };
+            ViewBag.Roles = role;
             return View();
         }
         [HttpPost]
         public async Task<IActionResult> Register(RegisterationRequestDTO registerationRequestDTO)
         {
+            if (registerationRequestDTO.Role == null)
+            {
+                registerationRequestDTO.Role = SD.Customer;
+            }
             var Result = await _authService.RegisterAsync<APIResponse>(registerationRequestDTO);
             if (Result != null && Result.IsSuccess)
             {
                 return RedirectToAction(nameof(Login));
             }
+            var role = new List<SelectListItem> {
+             new SelectListItem{ Value = SD.Customer, Text = SD.Customer},
+             new SelectListItem{ Value = SD.Admin, Text = SD.Admin},
+            };
+            ViewBag.Roles = role;
             return View();
         }
         [HttpGet]
