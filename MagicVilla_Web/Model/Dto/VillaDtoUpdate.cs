@@ -18,8 +18,10 @@ namespace MagicVilla_Web.Model.Dto
         public string Details { get; set; }
         [Required]
         public double Rate { get; set; }
-        [Required]
-        public string ImageUrl { get; set; }
+
+        public string? ImageUrl { get; set; }
+        public IFormFile? Image { get; set; }
+        public string? ImageLocalPath { get; set; }
 
         public string Amenity { get; set; }
     }

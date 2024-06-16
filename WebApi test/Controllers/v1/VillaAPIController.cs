@@ -32,7 +32,7 @@ namespace WebApi_test.Controllers.v1
         }
 
         [HttpGet]
-        [ResponseCache(CacheProfileName = "CachProfile")]
+        //[ResponseCache(CacheProfileName = "CachProfile")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]

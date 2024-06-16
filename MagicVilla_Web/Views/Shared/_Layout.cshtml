@@ -21,10 +21,19 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
-                        <li class="nav-item dropdown">
+                     
+                    <li class="nav-item dropdown">
                             <a class="nav-link text-dark dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                Content Management
-                            </a>
+                             
+                            @if (User.IsInRole(SD.Admin))
+                            {
+                                <span>Content Management (Admin)</span>
+                            }
+                             else
+                            {
+                               <span>Villa & VillaNumber</span>
+                            }
+                        </a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" asp-area="" asp-controller="Villa" asp-action="IndexVilla">Villa</a></li>
                                 <li><a class="dropdown-item" asp-area="" asp-controller="VillaNumber" asp-action="IndexVillaNumber">VillaNumber</a></li>
@@ -34,8 +43,12 @@
                     </ul>
                     <ul class="navbar-nav">
 
-                        @if (httpAcc.HttpContext.Session.GetString(SD.SessionToken) != null && httpAcc.HttpContext.Session.GetString(SD.SessionToken).ToString().Length > 0)
+                    @if (User.Identity.IsAuthenticated)
                         {
+                        
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" >Hello, @User.Identity.Name</a>
+                        </li>
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Auth" asp-action="Logout">Logout</a>
                             </li>

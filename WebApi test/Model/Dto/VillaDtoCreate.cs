@@ -16,7 +16,8 @@ namespace WebApi_test.Model.Dto
         public string Details { get; set; }
         public double Rate { get; set; }
 
-        public string ImageUrl { get; set; }
+        public string? ImageUrl { get; set; }
+        public IFormFile? Image { get; set; }
         public string Amenity { get; set; }
     }
 }

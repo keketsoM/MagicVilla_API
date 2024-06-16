@@ -27,9 +27,42 @@ namespace MagicVilla_Web.Services
             {
                 var client = httpClient.CreateClient("MagicAPI");
                 HttpRequestMessage message = new HttpRequestMessage();
-                message.Headers.Add("Accept", "application/json");
+                if (apiRequest.ContentType == SD.ContentType.MultiPartFormData)
+                {
+                    message.Headers.Add("Accept", "*/*");
+                }
+                else
+                {
+                    message.Headers.Add("Accept", "application/json");
+                }
+
                 message.RequestUri = new Uri(apiRequest.Url);
-                if (apiRequest.Data != null)
+
+                if (apiRequest.ContentType == SD.ContentType.MultiPartFormData)
+                {
+                    var content = new MultipartFormDataContent();
+
+                    foreach (var prop in apiRequest.Data.GetType().GetProperties())
+                    {
+                        var value = prop.GetValue(apiRequest.Data);
+                        if (value is FormFile)
+                        {
+                            var file = (FormFile)value;
+                            if (file != null)
+                            {
+                                content.Add(new StreamContent(file.OpenReadStream()), prop.Name, file.Name);
+                            }
+
+                        }
+                        else
+                        {
+                            content.Add(new StringContent(value == null ? "" : value.ToString()), prop.Name);
+                        }
+                    }
+                    message.Content = content;
+
+                }
+                else
                 {
                     message.Content = new StringContent(JsonConvert.SerializeObject(apiRequest.Data),
 
