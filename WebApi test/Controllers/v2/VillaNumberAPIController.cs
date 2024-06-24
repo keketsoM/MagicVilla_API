@@ -18,7 +18,7 @@ namespace WebApi_test.Controllers.v2
 
     [Route("api/v{version:apiVersion}/VillaNumberAPI")]
     [ApiController]
-    [ApiVersion("1.0")]
+    [ApiVersion("2.0")]
 
     public class VillaNumberAPIController : ControllerBase
     {

@@ -11,8 +11,8 @@
         }
         public static string SessionToken = "JWTToken";
         public static string CurrentVersion = "v2";
-        public static string Admin = "Admin";
-        public static string Customer = "Customer";
+        public static string Admin = "admin";
+        public static string Customer = "customer";
         public enum ContentType
         {
             Json,

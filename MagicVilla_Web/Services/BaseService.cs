@@ -50,7 +50,7 @@ namespace MagicVilla_Web.Services
                             var file = (FormFile)value;
                             if (file != null)
                             {
-                                content.Add(new StreamContent(file.OpenReadStream()), prop.Name, file.Name);
+                                content.Add(new StreamContent(file.OpenReadStream()), prop.Name, file.FileName);
                             }
 
                         }

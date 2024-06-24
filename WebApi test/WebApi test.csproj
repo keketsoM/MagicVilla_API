@@ -13,6 +13,9 @@
 		<PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.0.0" />
 		<PackageReference Include="AutoMapper" Version="12.0.0" />
 		<PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.0" />
+		<PackageReference Include="ImageResizer" Version="4.2.8" />
+		<PackageReference Include="LazZiya.ImageResize" Version="4.1.4" />
+		<PackageReference Include="Magick.NET-Q16-AnyCPU" Version="13.9.1" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.5" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.6" />
 		<PackageReference Include="Microsoft.AspNetCore.JsonPatch" Version="8.0.4" />
@@ -31,6 +34,10 @@
 
 	<ItemGroup>
 		<Folder Include="wwwroot\ProductImage\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\MagicVilla_Utility\MagicVilla_Utility.csproj" />
 	</ItemGroup>
 
 </Project>

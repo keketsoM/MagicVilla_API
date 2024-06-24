@@ -1,6 +1,6 @@
 ﻿@model VillaDtoCreate
 
-<form asp-action="CreateVilla" method="post" >
+<form asp-action="CreateVilla" method="post" enctype="multipart/form-data" >
     <br />
     <div class="container border p-3">
         <h1 class="text-primary">Create Villa</h1>
@@ -30,11 +30,18 @@
                 <span asp-validation-for="Details" class="text-danger"></span>
             </div>
             <div class="col-2">
-                <label asp-for="ImageUrl" class="form-label pt-2" style="font-size:20px;"></label>
+                <label asp-for="ImageUrl" hidden class="form-label pt-2" style="font-size:20px;"></label>
             </div>
             <div class="col-10 pb-3">
-                <input asp-for="ImageUrl" class="form-control" />
-                <span asp-validation-for="ImageUrl" class="text-danger"></span>
+                <input asp-for="ImageUrl" hidden class="form-control" />
+                <span asp-validation-for="ImageUrl" hidden class="text-danger"></span>
+            </div>
+            <div class="col-2">
+                <label asp-for="Image" class="form-label pt-2" style="font-size:20px;"></label>
+            </div>
+            <div class="col-10 pb-3">
+                <input asp-for="Image" class="form-control" />
+                <span asp-validation-for="Image"  class="text-danger"></span>
             </div>
             <div class="col-2">
                 <label asp-for="Occupancy" class="form-label pt-2" style="font-size:20px;"></label>

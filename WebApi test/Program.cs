@@ -28,10 +28,10 @@ builder.Services.AddScoped<IVillaNumberRepository, VillaNumberRepository>();
 builder.Services.AddAutoMapper(typeof(MappingConfig));
 builder.Services.AddControllers(options =>
 {
-    options.CacheProfiles.Add("CachProfile", new CacheProfile
-    {
-        Duration = 120
-    });
+//    options.CacheProfiles.Add("CachProfile", new CacheProfile
+//    {
+//        Duration = 120
+//    });
 }).AddNewtonsoftJson();
 builder.Services.AddApiVersioning
 (options =>

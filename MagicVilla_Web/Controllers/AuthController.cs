@@ -18,11 +18,9 @@ namespace MagicVilla_Web.Controllers
     public class AuthController : Controller
     {
         private readonly IAuthService _authService;
-        private readonly APIResponse _apiResponse;
-        //private readonly RoleManager<IdentityRole> _roleManager;
         public AuthController(IAuthService authService)
         {
-          //  _roleManager = roleManager;
+
             _authService = authService;
         }
         [HttpGet]
