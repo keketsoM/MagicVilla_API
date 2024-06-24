@@ -190,7 +190,7 @@ namespace WebApi_test.Controllers.v2
                     using (var image = new MagickImage(directoryLocation))
                     {
 
-                        var size = new MagickGeometry(400, 600);
+                        var size = new MagickGeometry(600, 400);
                         // This will resize the image to a fixed size without maintaining the aspect ratio.
                         // Normally an image will be resized to fit inside the specified size.
                         {
