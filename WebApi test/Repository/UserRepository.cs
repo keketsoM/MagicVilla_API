@@ -46,16 +46,16 @@ namespace WebApi_test.Repository
             return false;
         }
 
-        public async Task<LoginResponseDTO> Login(LoginRequestDTO loginRequestDTO)
+        public async Task<TokenDto> Login(LoginRequestDTO loginRequestDTO)
         {
             var user = _dbcontext.applicationUsers.FirstOrDefault(u => u.UserName.ToLower() == loginRequestDTO.UserName.ToLower());
             var result = await _userManager.CheckPasswordAsync(user, loginRequestDTO.Password);
             if (user == null)
             {
-                return new LoginResponseDTO()
+                return new TokenDto()
                 {
-                    Token = "",
-                    LocalUser = null
+                    AccessToken = "",
+
                 };
             }
             //generate JWT token
@@ -76,13 +76,13 @@ namespace WebApi_test.Repository
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
 
-            LoginResponseDTO loginResponseDTO = new LoginResponseDTO()
+            TokenDto tokenDto = new TokenDto()
             {
-                Token = tokenHandler.WriteToken(token),
-                LocalUser = _mapper.Map<UserDto>(user),
-                // Role = role.FirstOrDefault()
+                AccessToken = tokenHandler.WriteToken(token),
+
+
             };
-            return loginResponseDTO;
+            return tokenDto;
         }
 
         public async Task<UserDto> Register(RegisterationRequestDTO registerationRequestDTO)
@@ -103,7 +103,7 @@ namespace WebApi_test.Repository
                     if (!_roleManager.RoleExistsAsync(registerationRequestDTO.Role).GetAwaiter().GetResult())
                     {
                         await _roleManager.CreateAsync(new IdentityRole(registerationRequestDTO.Role));
-                       
+
                     }
                     await _userManager.AddToRoleAsync(user, "admin");
                     var userToReturn = _dbcontext.applicationUsers.FirstOrDefault(u => u.UserName == registerationRequestDTO.UserName);

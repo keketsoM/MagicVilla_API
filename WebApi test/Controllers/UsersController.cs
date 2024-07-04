@@ -25,8 +25,8 @@ namespace WebApi_test.Controllers
         [HttpPost("Login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDTO model)
         {
-            var userLogin = await _userRepository.Login(model);
-            if (userLogin.LocalUser == null && string.IsNullOrEmpty(userLogin.Token))
+            var tokenDto = await _userRepository.Login(model);
+            if (tokenDto == null && string.IsNullOrEmpty(tokenDto.AccessToken))
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.IsSuccess = false;
@@ -35,7 +35,7 @@ namespace WebApi_test.Controllers
             }
             _response.StatusCode = HttpStatusCode.OK;
             _response.IsSuccess = true;
-            _response.Result = userLogin;
+            _response.Result = tokenDto;
             return Ok(_response);
 
         }

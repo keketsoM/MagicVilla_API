@@ -6,7 +6,7 @@ namespace WebApi_test.Repository.IRepository
     public interface IUserRepository
     {
         bool IsUniqueUser(string username);
-        Task<LoginResponseDTO> Login(LoginRequestDTO loginRequestDTO);
+        Task<TokenDto> Login(LoginRequestDTO loginRequestDTO);
         Task<UserDto> Register(RegisterationRequestDTO registerationRequestDTO);
     }
 }
