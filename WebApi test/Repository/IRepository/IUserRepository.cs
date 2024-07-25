@@ -8,5 +8,6 @@ namespace WebApi_test.Repository.IRepository
         bool IsUniqueUser(string username);
         Task<TokenDto> Login(LoginRequestDTO loginRequestDTO);
         Task<UserDto> Register(RegisterationRequestDTO registerationRequestDTO);
+        Task<TokenDto> RefreshAccessToken(TokenDto tokenDto);
     }
 }

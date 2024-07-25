@@ -9,9 +9,11 @@ using WebApi_test.Repository.IRepository;
 
 namespace WebApi_test.Controllers
 {
-    [Route("api/v{version:apiVersion}/UsersAuth")]
-    [ApiController]
+
     [ApiVersionNeutral]
+    //[Route("api/v{version:apiVersion}/UsersAuth")]
+    [Route("api/UsersAuth")]
+    [ApiController]
 
     public class UsersController : Controller
     {
@@ -63,6 +65,34 @@ namespace WebApi_test.Controllers
             _response.IsSuccess = true;
 
             return Ok(_response);
+        }
+
+        [HttpPost("RefreshToken")]
+        public async Task<IActionResult> GetNewTokenFromRefreshToken([FromBody] TokenDto tokenDto)
+        {
+            if (ModelState.IsValid)
+            {
+                var tokenDtoResponse = await _userRepository.RefreshAccessToken(tokenDto);
+                if (tokenDtoResponse == null || string.IsNullOrEmpty(tokenDtoResponse.AccessToken))
+                {
+                    _response.StatusCode = HttpStatusCode.BadRequest;
+                    _response.IsSuccess = false;
+                    _response.ErrorMessages.Add("Token invaild");
+                    return BadRequest(_response);
+                }
+                _response.StatusCode = HttpStatusCode.OK;
+                _response.IsSuccess = true;
+                _response.Result = tokenDtoResponse;
+                return Ok(_response);
+            }
+            else
+            {
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.IsSuccess = false;
+                _response.ErrorMessages.Add("Invalid token Input");
+                return BadRequest(_response);
+            }
+
         }
     }
 }
