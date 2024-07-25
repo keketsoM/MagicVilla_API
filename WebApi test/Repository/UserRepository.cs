@@ -127,16 +127,15 @@ namespace WebApi_test.Repository
             };
 
         }
-        private async Task<string> CreateNewRefreshToken(string userID, string tokenID)
+        private async Task<string> CreateNewRefreshToken(string userId, string tokenId)
         {
             RefreshToken refreshToken = new RefreshToken()
             {
                 IsValid = true,
-                JwtTokenId = tokenID,
-                UserId = userID,
+                JwtTokenId = tokenId,
+                UserId = userId,
                 ExpiresAt = DateTime.UtcNow.AddMinutes(3),
-                Refresh_Token = Guid.NewGuid() + "-" + Guid.NewGuid(),
-
+                Refresh_Token = Guid.NewGuid() + "-" + Guid.NewGuid()
             };
 
             await _dbcontext.refreshTokens.AddAsync(refreshToken);

@@ -3,10 +3,12 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace WebApi_test.Migrations
 {
     /// <inheritdoc />
-    public partial class AddIdentity : Migration
+    public partial class initialTable : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -30,6 +32,8 @@ namespace WebApi_test.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Discriminator = table.Column<string>(type: "nvarchar(21)", maxLength: 21, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -48,6 +52,61 @@ namespace WebApi_test.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "localUsers",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Password = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Role = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_localUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "refreshTokens",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    JwtTokenId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Refresh_Token = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsValid = table.Column<bool>(type: "bit", nullable: false),
+                    ExpiresAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_refreshTokens", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "villas",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Details = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Rate = table.Column<double>(type: "float", nullable: false),
+                    Sqft = table.Column<int>(type: "int", nullable: false),
+                    Occupancy = table.Column<int>(type: "int", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ImageLocalPath = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Amenity = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdateDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_villas", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -156,40 +215,38 @@ namespace WebApi_test.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.UpdateData(
-                table: "villas",
-                keyColumn: "Id",
-                keyValue: 1,
-                column: "CreatedDate",
-                value: new DateTime(2024, 6, 3, 18, 20, 14, 706, DateTimeKind.Local).AddTicks(9580));
+            migrationBuilder.CreateTable(
+                name: "villaNumbers",
+                columns: table => new
+                {
+                    VillaNo = table.Column<int>(type: "int", nullable: false),
+                    SpecialDetails = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdateDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    VillaId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_villaNumbers", x => x.VillaNo);
+                    table.ForeignKey(
+                        name: "FK_villaNumbers_villas_VillaId",
+                        column: x => x.VillaId,
+                        principalTable: "villas",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
 
-            migrationBuilder.UpdateData(
+            migrationBuilder.InsertData(
                 table: "villas",
-                keyColumn: "Id",
-                keyValue: 2,
-                column: "CreatedDate",
-                value: new DateTime(2024, 6, 3, 18, 20, 14, 706, DateTimeKind.Local).AddTicks(9592));
-
-            migrationBuilder.UpdateData(
-                table: "villas",
-                keyColumn: "Id",
-                keyValue: 3,
-                column: "CreatedDate",
-                value: new DateTime(2024, 6, 3, 18, 20, 14, 706, DateTimeKind.Local).AddTicks(9594));
-
-            migrationBuilder.UpdateData(
-                table: "villas",
-                keyColumn: "Id",
-                keyValue: 4,
-                column: "CreatedDate",
-                value: new DateTime(2024, 6, 3, 18, 20, 14, 706, DateTimeKind.Local).AddTicks(9596));
-
-            migrationBuilder.UpdateData(
-                table: "villas",
-                keyColumn: "Id",
-                keyValue: 5,
-                column: "CreatedDate",
-                value: new DateTime(2024, 6, 3, 18, 20, 14, 706, DateTimeKind.Local).AddTicks(9597));
+                columns: new[] { "Id", "Amenity", "CreatedDate", "Details", "ImageLocalPath", "ImageUrl", "Name", "Occupancy", "Rate", "Sqft", "UpdateDate" },
+                values: new object[,]
+                {
+                    { 1, "", new DateTime(2024, 7, 25, 9, 28, 55, 388, DateTimeKind.Local).AddTicks(2864), "Fusce 11 tincidunt maximus leo, sed scelerisque massa auctor sit amet. Donec ex mauris, hendrerit quis nibh ac, efficitur fringilla enim.", null, "https://dotnetmastery.com/bluevillaimages/villa3.jpg", "Royal Villa", 4, 200.0, 550, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 2, "", new DateTime(2024, 7, 25, 9, 28, 55, 388, DateTimeKind.Local).AddTicks(2880), "Fusce 11 tincidunt maximus leo, sed scelerisque massa auctor sit amet. Donec ex mauris, hendrerit quis nibh ac, efficitur fringilla enim.", null, "https://dotnetmastery.com/bluevillaimages/villa1.jpg", "Premium Pool Villa", 4, 300.0, 550, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 3, "", new DateTime(2024, 7, 25, 9, 28, 55, 388, DateTimeKind.Local).AddTicks(2881), "Fusce 11 tincidunt maximus leo, sed scelerisque massa auctor sit amet. Donec ex mauris, hendrerit quis nibh ac, efficitur fringilla enim.", null, "https://dotnetmastery.com/bluevillaimages/villa4.jpg", "Luxury Pool Villa", 4, 400.0, 750, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 4, "", new DateTime(2024, 7, 25, 9, 28, 55, 388, DateTimeKind.Local).AddTicks(2883), "Fusce 11 tincidunt maximus leo, sed scelerisque massa auctor sit amet. Donec ex mauris, hendrerit quis nibh ac, efficitur fringilla enim.", null, "https://dotnetmastery.com/bluevillaimages/villa5.jpg", "Diamond Villa", 4, 550.0, 900, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 5, "", new DateTime(2024, 7, 25, 9, 28, 55, 388, DateTimeKind.Local).AddTicks(2884), "Fusce 11 tincidunt maximus leo, sed scelerisque massa auctor sit amet. Donec ex mauris, hendrerit quis nibh ac, efficitur fringilla enim.", null, "https://dotnetmastery.com/bluevillaimages/villa2.jpg", "Diamond Pool Villa", 4, 600.0, 1100, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) }
+                });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -229,6 +286,11 @@ namespace WebApi_test.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_villaNumbers_VillaId",
+                table: "villaNumbers",
+                column: "VillaId");
         }
 
         /// <inheritdoc />
@@ -250,45 +312,22 @@ namespace WebApi_test.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "localUsers");
+
+            migrationBuilder.DropTable(
+                name: "refreshTokens");
+
+            migrationBuilder.DropTable(
+                name: "villaNumbers");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
 
-            migrationBuilder.UpdateData(
-                table: "villas",
-                keyColumn: "Id",
-                keyValue: 1,
-                column: "CreatedDate",
-                value: new DateTime(2024, 5, 22, 11, 28, 16, 978, DateTimeKind.Local).AddTicks(3701));
-
-            migrationBuilder.UpdateData(
-                table: "villas",
-                keyColumn: "Id",
-                keyValue: 2,
-                column: "CreatedDate",
-                value: new DateTime(2024, 5, 22, 11, 28, 16, 978, DateTimeKind.Local).AddTicks(3716));
-
-            migrationBuilder.UpdateData(
-                table: "villas",
-                keyColumn: "Id",
-                keyValue: 3,
-                column: "CreatedDate",
-                value: new DateTime(2024, 5, 22, 11, 28, 16, 978, DateTimeKind.Local).AddTicks(3718));
-
-            migrationBuilder.UpdateData(
-                table: "villas",
-                keyColumn: "Id",
-                keyValue: 4,
-                column: "CreatedDate",
-                value: new DateTime(2024, 5, 22, 11, 28, 16, 978, DateTimeKind.Local).AddTicks(3719));
-
-            migrationBuilder.UpdateData(
-                table: "villas",
-                keyColumn: "Id",
-                keyValue: 5,
-                column: "CreatedDate",
-                value: new DateTime(2024, 5, 22, 11, 28, 16, 978, DateTimeKind.Local).AddTicks(3721));
+            migrationBuilder.DropTable(
+                name: "villas");
         }
     }
 }

@@ -11,8 +11,8 @@ namespace WebApi_test.Controllers
 {
 
     [ApiVersionNeutral]
-    //[Route("api/v{version:apiVersion}/UsersAuth")]
-    [Route("api/UsersAuth")]
+    [Route("api/v{version:apiVersion}/UsersAuth")]
+
     [ApiController]
 
     public class UsersController : Controller
@@ -28,7 +28,7 @@ namespace WebApi_test.Controllers
         public async Task<IActionResult> Login([FromBody] LoginRequestDTO model)
         {
             var tokenDto = await _userRepository.Login(model);
-            if (tokenDto == null && string.IsNullOrEmpty(tokenDto.AccessToken))
+            if (tokenDto == null || string.IsNullOrEmpty(tokenDto.AccessToken))
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.IsSuccess = false;
