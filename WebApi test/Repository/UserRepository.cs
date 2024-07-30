@@ -97,7 +97,7 @@ namespace WebApi_test.Repository
                 //}
                 //_dbcontext.UpdateRange(chainRecords);
                 //await _dbcontext.SaveChangesAsync();
-                return new TokenDto();
+                // return new TokenDto();
             }
             // if just expired then match as invalid and return empty
             if (existingRefreshToken.ExpiresAt < DateTime.UtcNow)
@@ -134,7 +134,7 @@ namespace WebApi_test.Repository
                 IsValid = true,
                 JwtTokenId = tokenId,
                 UserId = userId,
-                ExpiresAt = DateTime.UtcNow.AddMinutes(3),
+                ExpiresAt = DateTime.UtcNow.AddMinutes(10),
                 Refresh_Token = Guid.NewGuid() + "-" + Guid.NewGuid()
             };
 

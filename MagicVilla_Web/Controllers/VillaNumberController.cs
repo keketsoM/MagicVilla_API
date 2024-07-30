@@ -64,6 +64,11 @@ namespace MagicVilla_Web.Controllers
                     TempData["success"] = "VillaNumber created successfully";
                     return RedirectToAction("IndexVillaNumber");
                 }
+                else if (response == null)
+                {
+                    ModelState.AddModelError("ErrorMessage", "Unauthrized user");
+                    TempData["error"] = "Unauthrized user";
+                }
                 else if (response.ErrorMessages.Count > 0)
                 {
                     ModelState.AddModelError("ErrorMessage", response.ErrorMessages.FirstOrDefault().ToString());

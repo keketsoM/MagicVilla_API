@@ -64,7 +64,8 @@ builder.Services.AddAuthentication(x =>
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Key)),
             ValidateAudience = false,
-            ValidateIssuer = false
+            ValidateIssuer = false,
+            ClockSkew = TimeSpan.Zero
         };
     });
 builder.Services.AddSwaggerGen(options =>
