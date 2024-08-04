@@ -9,5 +9,6 @@ namespace WebApi_test.Repository.IRepository
         Task<TokenDto> Login(LoginRequestDTO loginRequestDTO);
         Task<UserDto> Register(RegisterationRequestDTO registerationRequestDTO);
         Task<TokenDto> RefreshAccessToken(TokenDto tokenDto);
+        Task RevokeRefreshToken(TokenDto tokenDto);
     }
 }

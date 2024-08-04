@@ -18,9 +18,9 @@ namespace MagicVilla_Web.Services
 
         }
 
-        public Task<T> LoginAsync<T>(LoginRequestDTO objToCreate)
+        public async Task<T> LoginAsync<T>(LoginRequestDTO objToCreate)
         {
-            return _baseService.SendAsync<T>(new APIRequest()
+            return await _baseService.SendAsync<T>(new APIRequest()
             {
                 ApiType = SD.ApiType.POST,
                 Url = AuthUrl + $"/api/{SD.CurrentVersion}/UsersAuth/Login",
@@ -28,9 +28,19 @@ namespace MagicVilla_Web.Services
             }, withBearer: false);
         }
 
-        public Task<T> RegisterAsync<T>(RegisterationRequestDTO objToCreate)
+        public async Task<T> LogoutAsync<T>(TokenDto tokenDto)
         {
-            return _baseService.SendAsync<T>(new APIRequest()
+            return await _baseService.SendAsync<T>(new APIRequest()
+            {
+                ApiType = SD.ApiType.POST,
+                Url = AuthUrl + $"/api/{SD.CurrentVersion}/UsersAuth/Revoke",
+                Data = tokenDto
+            }, withBearer: false);
+        }
+
+        public async Task<T> RegisterAsync<T>(RegisterationRequestDTO objToCreate)
+        {
+            return await _baseService.SendAsync<T>(new APIRequest()
             {
                 ApiType = SD.ApiType.POST,
                 Url = AuthUrl + $"/api/{SD.CurrentVersion}/UsersAuth/Register",

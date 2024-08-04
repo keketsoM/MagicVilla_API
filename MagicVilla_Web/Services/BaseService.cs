@@ -24,10 +24,12 @@ namespace MagicVilla_Web.Services
         public IHttpClientFactory httpClient { get; set; }
         private readonly ITokenProvider _tokenProvider;
         private IHttpContextAccessor _httpContextAccessor;
+        private readonly IApiMessageRequestBuilder _apiMessageRequestBuilder;
         protected readonly string VillaApiUrl;
         public BaseService(IHttpClientFactory httpClient, ITokenProvider tokenProvider,
-            IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
+            IConfiguration configuration, IHttpContextAccessor httpContextAccessor, IApiMessageRequestBuilder apiMessageRequestBuilder)
         {
+            _apiMessageRequestBuilder = apiMessageRequestBuilder;
             _tokenProvider = tokenProvider;
             this.responseModel = new APIResponse();
             this.httpClient = httpClient;
@@ -43,98 +45,58 @@ namespace MagicVilla_Web.Services
 
                 var messageFactory = () =>
                {
-                   HttpRequestMessage message = new HttpRequestMessage();
-                   if (apiRequest.ContentType == SD.ContentType.MultiPartFormData)
-                   {
-                       message.Headers.Add("Accept", "*/*");
-                   }
-                   else
-                   {
-                       message.Headers.Add("Accept", "application/json");
-                   }
-
-                   message.RequestUri = new Uri(apiRequest.Url);
-                   //if (withBearer == true && _tokenProvider.GetToken() != null)
-                   //{
-                   //    var token = _tokenProvider.GetToken();
-                   //    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
-                   //}
-
-                   if (apiRequest.ContentType == SD.ContentType.MultiPartFormData)
-                   {
-                       var content = new MultipartFormDataContent();
-
-                       foreach (var prop in apiRequest.Data.GetType().GetProperties())
-                       {
-                           var value = prop.GetValue(apiRequest.Data);
-                           if (value is FormFile)
-                           {
-                               var file = (FormFile)value;
-                               if (file != null)
-                               {
-                                   content.Add(new StreamContent(file.OpenReadStream()), prop.Name, file.FileName);
-                               }
-
-                           }
-                           else
-                           {
-                               content.Add(new StringContent(value == null ? "" : value.ToString()), prop.Name);
-                           }
-                       }
-                       message.Content = content;
-
-                   }
-                   else
-                   {
-                       message.Content = new StringContent(JsonConvert.SerializeObject(apiRequest.Data),
-
-                         Encoding.UTF8, "application/json");
-                   }
-                   switch (apiRequest.ApiType)
-                   {
-                       case SD.ApiType.POST:
-                           message.Method = HttpMethod.Post;
-                           break;
-                       case SD.ApiType.PUT:
-                           message.Method = HttpMethod.Put;
-                           break;
-                       case SD.ApiType.DELETE:
-                           message.Method = HttpMethod.Delete;
-                           break;
-                       default:
-                           message.Method = HttpMethod.Get;
-                           break;
-                   }
-
-                   return message;
+                   return _apiMessageRequestBuilder.Build(apiRequest);
                };
 
-                HttpResponseMessage apiResponse = null;
+                HttpResponseMessage httpResponseMessage = null;
 
-                apiResponse = await SendWithRefreshTokenAsync(client, messageFactory, withBearer);
+                httpResponseMessage = await SendWithRefreshTokenAsync(client, messageFactory, withBearer);
+                APIResponse FinalApiResponse = new APIResponse()
+                {
+                    IsSuccess = false
+                };
 
-                var apiContent = await apiResponse.Content.ReadAsStringAsync();
                 try
                 {
-                    APIResponse ApiResponse = JsonConvert.DeserializeObject<APIResponse>(apiContent);
-                    if (ApiResponse != null && (apiResponse.StatusCode == HttpStatusCode.BadRequest || apiResponse.StatusCode == HttpStatusCode.NotFound))
+                    switch (httpResponseMessage.StatusCode)
                     {
-                        ApiResponse.StatusCode = HttpStatusCode.BadRequest;
-                        ApiResponse.IsSuccess = false;
-                        var res = JsonConvert.SerializeObject(ApiResponse);
-                        var returnObj = JsonConvert.DeserializeObject<T>(res);
-                        return returnObj;
+                        case HttpStatusCode.BadRequest:
+                            FinalApiResponse.ErrorMessages = new List<string>() { "BadRequest" };
+                            break;
+                        case HttpStatusCode.NotFound:
+                            FinalApiResponse.ErrorMessages = new List<string>() { "NotFound" };
+                            break;
+                        case HttpStatusCode.Unauthorized:
+                            FinalApiResponse.ErrorMessages = new List<string>() { "Unauthorized" };
+                            break;
+                        case HttpStatusCode.Forbidden:
+                            FinalApiResponse.ErrorMessages = new List<string>() { "Access Denied" };
+                            break;
+                        case HttpStatusCode.InternalServerError:
+                            FinalApiResponse.ErrorMessages = new List<string>() { "InternalServerError" };
+                            break;
+                        default:
+                            var apiContent = await httpResponseMessage.Content.ReadAsStringAsync();
+                            FinalApiResponse.IsSuccess = true;
+                            FinalApiResponse = JsonConvert.DeserializeObject<APIResponse>(apiContent);
+                            break;
                     }
+
+
+
+
                 }
                 catch (Exception e)
                 {
-                    var exceptionResponse = JsonConvert.DeserializeObject<T>(apiContent);
-                    return exceptionResponse;
+                    FinalApiResponse.ErrorMessages = new List<string>() { "Error Encounted", e.Message.ToString() };
                 }
-
-                var APIResponse = JsonConvert.DeserializeObject<T>(apiContent);
-                return APIResponse;
-
+                var res = JsonConvert.SerializeObject(FinalApiResponse);
+                var returnObj = JsonConvert.DeserializeObject<T>(res);
+                return returnObj;
+            }
+            catch (AuthException)
+            {
+                throw;
             }
             catch (Exception ex)
             {
@@ -181,6 +143,10 @@ namespace MagicVilla_Web.Services
 
                     return response;
                 }
+                catch (AuthException)
+                {
+                    throw;
+                }
                 catch (HttpRequestException httpRequestException)
                 {
                     if (httpRequestException.StatusCode == HttpStatusCode.Unauthorized)
@@ -212,6 +178,7 @@ namespace MagicVilla_Web.Services
             {
                 await _httpContextAccessor.HttpContext.SignOutAsync();
                 _tokenProvider.RemoveToken();
+                throw new AuthException();
             }
             else
             {

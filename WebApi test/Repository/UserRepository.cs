@@ -79,8 +79,8 @@ namespace WebApi_test.Repository
             }
 
             // compare data from existing refresh token and acess token provided and if there is any mismatch then consider it as invalid
-            var accessTokenData = GetAccessTokenData(tokenDto.AccessToken);
-            if (!accessTokenData.isSuccessful || accessTokenData.userId != existingRefreshToken.UserId || accessTokenData.tokenId != existingRefreshToken.JwtTokenId)
+            var isTokenValid = GetAccessTokenData(tokenDto.AccessToken, existingRefreshToken.UserId, existingRefreshToken.JwtTokenId);
+            if (!isTokenValid)
             {
                 existingRefreshToken.IsValid = false;
                 await _dbcontext.SaveChangesAsync();
@@ -90,27 +90,21 @@ namespace WebApi_test.Repository
             //when someone tries to use not valid refresh token, fraud possible
             if (!existingRefreshToken.IsValid)
             {
-                var chainRecords = await _dbcontext.refreshTokens.Where(x => x.JwtTokenId == existingRefreshToken.JwtTokenId && x.Refresh_Token == existingRefreshToken.Refresh_Token).ExecuteUpdateAsync(u => u.SetProperty(RefreshToken => RefreshToken.IsValid, false));
-                //foreach (var record in chainRecords)
-                //{
-                //    record.IsValid = false;
-                //}
-                //_dbcontext.UpdateRange(chainRecords);
-                //await _dbcontext.SaveChangesAsync();
-                // return new TokenDto();
+                await MarkAllTokenInChainAsInvalid(existingRefreshToken.UserId, existingRefreshToken.JwtTokenId);
+                return new TokenDto();
             }
             // if just expired then match as invalid and return empty
+
             if (existingRefreshToken.ExpiresAt < DateTime.UtcNow)
             {
-                existingRefreshToken.IsValid = false;
-                await _dbcontext.SaveChangesAsync();
+                await MarkTokenAsInvalid(existingRefreshToken);
                 return new TokenDto();
             }
             // replace old refresh token with new one with updated expiry date
             var newRefreshToken = await CreateNewRefreshToken(existingRefreshToken.UserId, existingRefreshToken.JwtTokenId);
             // revoke existing refresh token
-            existingRefreshToken.IsValid = false;
-            await _dbcontext.SaveChangesAsync();
+            await MarkTokenAsInvalid(existingRefreshToken);
+
             //geneerate new access token
 
             var applicationUser = await _dbcontext.applicationUsers.FirstOrDefaultAsync(u => u.Id == existingRefreshToken.UserId);
@@ -127,6 +121,23 @@ namespace WebApi_test.Repository
             };
 
         }
+        public async Task RevokeRefreshToken(TokenDto tokenDto)
+        {
+            var existingRefreshToken = await _dbcontext.refreshTokens.FirstOrDefaultAsync(x => x.Refresh_Token == tokenDto.RefreshToken);
+            if (existingRefreshToken == null)
+            {
+                return;
+            }
+            //compare data from existing refresh token and acess token provided and
+            //if there is any mismatch then we should do nothing with the refresh token
+            var isTokenValid = GetAccessTokenData(tokenDto.AccessToken, existingRefreshToken.UserId, existingRefreshToken.JwtTokenId);
+            if (!isTokenValid)
+            {
+                return;
+            }
+            await MarkAllTokenInChainAsInvalid(existingRefreshToken.UserId, existingRefreshToken.JwtTokenId);
+
+        }
         private async Task<string> CreateNewRefreshToken(string userId, string tokenId)
         {
             RefreshToken refreshToken = new RefreshToken()
@@ -134,7 +145,7 @@ namespace WebApi_test.Repository
                 IsValid = true,
                 JwtTokenId = tokenId,
                 UserId = userId,
-                ExpiresAt = DateTime.UtcNow.AddMinutes(10),
+                ExpiresAt = DateTime.UtcNow.AddMinutes(2),
                 Refresh_Token = Guid.NewGuid() + "-" + Guid.NewGuid()
             };
 
@@ -144,7 +155,7 @@ namespace WebApi_test.Repository
         }
 
 
-        private (bool isSuccessful, string userId, string tokenId) GetAccessTokenData(string accessToken)
+        private bool GetAccessTokenData(string accessToken, string expecteduserId, string expectedtokenId)
         {
             try
             {
@@ -152,12 +163,12 @@ namespace WebApi_test.Repository
                 var jwtToken = tokenHandler.ReadJwtToken(accessToken);
                 var userId = jwtToken.Claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Sub).Value;
                 var jwtTokenId = jwtToken.Claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Jti).Value;
-                return (true, userId, jwtTokenId);
+                return expecteduserId == userId && expectedtokenId == jwtTokenId;
 
             }
             catch
             {
-                return (false, null, null);
+                return false;
             }
 
         }
@@ -225,6 +236,25 @@ namespace WebApi_test.Repository
                 Console.WriteLine(e.Message);
             };
             return new UserDto();
+        }
+        private async Task MarkAllTokenInChainAsInvalid(string userId, string tokenId)
+        {
+            var chainRecords = await _dbcontext.refreshTokens.Where(x =>
+              x.UserId == userId &&
+              x.JwtTokenId == tokenId)
+              .ExecuteUpdateAsync(u => u.SetProperty(RefreshToken => RefreshToken.IsValid, false));
+            //foreach (var record in chainRecords)
+            //{
+            //    record.IsValid = false;
+            //}
+            //_dbcontext.UpdateRange(chainRecords);
+            //await _dbcontext.SaveChangesAsync();
+            // return new TokenDto();
+        }
+        private Task MarkTokenAsInvalid(RefreshToken refreshToken)
+        {
+            refreshToken.IsValid = false;
+            return _dbcontext.SaveChangesAsync();
         }
 
 
