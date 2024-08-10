@@ -3,12 +3,14 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Text;
 using WebApi_test;
 using WebApi_test.Data;
+using WebApi_test.Filters;
 using WebApi_test.Model;
 using WebApi_test.Repository;
 using WebApi_test.Repository.IRepository;
@@ -22,18 +24,21 @@ builder.Services.AddDbContext<ApplicationDbcontext>(options =>
 });
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbcontext>();
 builder.Services.AddResponseCaching();
-
+builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOption>();
 builder.Services.AddScoped<IVillaRepository, VillaRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IVillaNumberRepository, VillaNumberRepository>();
 builder.Services.AddAutoMapper(typeof(MappingConfig));
-builder.Services.AddControllers(options =>
+builder.Services.AddControllers(
+    options =>
 {
+    options.Filters.Add(new CustomExceptionFilter());
     //    options.CacheProfiles.Add("CachProfile", new CacheProfile
     //    {
     //        Duration = 120
     //    });
-}).AddNewtonsoftJson();
+}
+).AddNewtonsoftJson();
 builder.Services.AddApiVersioning
 (options =>
 {
@@ -68,10 +73,7 @@ builder.Services.AddAuthentication(x =>
             ClockSkew = TimeSpan.Zero
         };
     });
-builder.Services.AddSwaggerGen(options =>
-{
-
-});
+builder.Services.AddSwaggerGen();
 var app = builder.Build();
 app.UseSwagger();
 // Configure the HTTP request pipeline.
@@ -84,6 +86,15 @@ if (app.Environment.IsDevelopment())
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "WebApi_test v1");
     });
 }
+else
+{
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v2/swagger.json", "WebApi_test v2");
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "WebApi_test v1");
+    });
+}
+app.UseExceptionHandler("/ErrorHandling/ProcessError");
 app.UseStaticFiles();
 app.UseHttpsRedirection();
 app.UseAuthentication();
@@ -91,6 +102,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 ApplyMigration();
+
 app.Run();
 void ApplyMigration()
 {

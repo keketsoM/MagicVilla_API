@@ -10,10 +10,10 @@ using WebApi_test.Repository.IRepository;
 namespace WebApi_test.Controllers
 {
 
-    [ApiVersionNeutral]
-    [Route("api/v{version:apiVersion}/UsersAuth")]
 
+    [Route("api/v{version:apiVersion}/UsersAuth")]
     [ApiController]
+    [ApiVersionNeutral]
 
     public class UsersController : Controller
     {
@@ -24,6 +24,19 @@ namespace WebApi_test.Controllers
             _userRepository = userRepository;
             _response = new APIResponse();
         }
+
+        [HttpGet("Error")]
+        public async Task<IActionResult> Error()
+        {
+            throw new FileNotFoundException();
+        }
+
+        [HttpGet("ImageError")]
+        public async Task<IActionResult> ImageError()
+        {
+            throw new BadImageFormatException("Fake image Exception");
+        }
+
         [HttpPost("Login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDTO model)
         {
